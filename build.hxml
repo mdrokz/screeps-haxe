@@ -1,8 +1,8 @@
 --class-path .
 
-screeps.Memory
+screeps
 
---main Main
+Main
 
 --js out.js
 

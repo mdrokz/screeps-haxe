@@ -1,0 +1,10 @@
+--class-path .
+
+screeps.Memory
+
+--main Main
+
+--js out.js
+
+--dce full
+

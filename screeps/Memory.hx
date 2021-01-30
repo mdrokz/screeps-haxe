@@ -1,18 +1,14 @@
 package screeps;
 
-import screeps.Utils.JsMap;
-
-typedef Object = JsMap<String,Any>;
-
-
+typedef Object = Map<String,Any>;
 
 @:keep
 @:native("Memory") extern class Memory {
-    static var creeps: Object;
-    static var powerCreeps: Object;
-    static var flags: Object;
-    static var rooms: Object;
-    static var spawns: Object;
+    static final creeps: Object;
+    static final powerCreeps: Object;
+    static final flags: Object;
+    static final rooms: Object;
+    static final spawns: Object;
 
     @:selfCall
     public function new():Void;

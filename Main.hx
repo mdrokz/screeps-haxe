@@ -1,36 +1,45 @@
-import screeps.Utils.JsObject;
-import screeps.Globals.Reactions;
+import screeps.Source;
+import screeps.RoomPosition;
+import screeps.Creep.AnyCreep;
+import screeps.Resource;
+import screeps.Structure;
+import screeps.Flag;
+import screeps.Nuke;
+import screeps.TombStone;
+import screeps.Deposit;
+import screeps.Ruin;
+import haxe.extern.EitherType;
+import screeps.Mineral;
+import screeps.Globals.Commodities;
 import screeps.Globals.ControllerStructures;
-import screeps.Globals.Constants;
-import screeps.Globals.Colors;
+import screeps.Globals.FindClosestByPathAlgorithm.astar;
 import screeps.Memory;
-import screeps.Globals.Err.OK;
+import screeps.Globals.ScreepsReturnCode.OK;
 
 typedef CreepInfo = {
-    source: String
-} 
+	source:String
+}
 
 @:expose
 class Main {
-    // public static final colors = Constants.COLORS_ALL();
-    static public function loop() {
-        var s = Memory.creeps["ss"];
-        var v = OK;
+	static public function loop() {
+		var s = Memory.creeps["ss"];
+		var v = OK;
 
-        var d = Reactions.UH2O.X;
+        var d = Commodities.switch_.cooldown;
+
+        var m: Mineral = null;
+
+        var v = new js.lib.Object({d: "232"});
+
         
-        var f = new JsObject({f23: "2323"});
-        
-        var ss = f["f23"];
+		// var f: Test = "d";
 
-        var dd = new Map();
+		var x = ControllerStructures.spawn[1];
 
-        var xx = dd["2"];
+		trace(x);
+		trace(s);
 
-        var x = ControllerStructures.spawn[1];
-        trace(x);
-        trace(s);
-
-        // trace(colors[1]);
-    }
+		// trace(colors[1]);
+	}
 }

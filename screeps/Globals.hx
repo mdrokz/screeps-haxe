@@ -1,9 +1,11 @@
 package screeps;
 
-import screeps.Utils.JsObject;
+import haxe.extern.EitherType;
+import haxe.ds.Either;
 import screeps.Macros.EnumTools;
+import haxe.ds.ReadOnlyArray;
 
-extern enum abstract Err(Int) {
+extern enum abstract ScreepsReturnCode(Int) {
 	final OK = 0;
 	final ERR_NOT_OWNER = -1;
 	final ERR_NOT_PATH = -2;
@@ -54,6 +56,12 @@ extern enum abstract Find(Int) {
 	final FIND_RUINS = 123;
 }
 
+extern enum abstract FindStructure(String) {
+	final FIND_STRUCTURES  = 107;
+	final FIND_MY_STRUCTURES = 108;
+	final FIND_HOSTILE_STRUCTURES = 109;
+}
+
 extern enum abstract Directions(Int) {
 	final TOP = 1;
 	final TOP_RIGHT = 2;
@@ -79,15 +87,24 @@ extern enum abstract Colors(Int) {
 }
 
 extern class Constants {
-	// public static inline function COLORS_ALL() = ReadOnlyArray<Colors> {
-	//     return EnumTools.getValues(Colors);
-	// }
-	// public static inline function BODYPART_ALL() = ReadOnlyArray<BodyPart> {
-	// 	return EnumTools.getValues(BodyPart);
-	// }
-	// public static inline function RESOURCE_ALL() = ReadOnlyArray<Resource> {
-	//     return EnumTools.getValues(Resource);
-	// }
+	public static inline function COLORS_ALL():ReadOnlyArray<Colors> {
+		return EnumTools.getValues(Colors);
+	}
+	public static inline function BODYPART_ALL():ReadOnlyArray<BodyPart> {
+		return EnumTools.getValues(BodyPart);
+	}
+	public static inline function RESOURCE_ALL():ReadOnlyArray<ResourceConstant> {
+		return EnumTools.getValues(ResourceConstant);
+	}
+
+	public static inline function INTERSHARD_RESOURCES():ReadOnlyArray<Purchase> {
+		return EnumTools.getValues(Purchase);
+	}
+}
+
+extern enum abstract FindClosestByPathAlgorithm(String) {
+	final astar = "astar";
+	final dijsktra = "dijsktra";
 }
 
 extern enum abstract CreepInfo(Int) {
@@ -98,26 +115,26 @@ extern enum abstract CreepInfo(Int) {
 }
 
 extern enum abstract ObstacleObjectTypes(String) {
-	final spawn;
-	final creep;
-	final powerCreep;
-	final source;
-	final mineral;
-	final deposit;
-	final controller;
-	final constructedWall;
-	final extension;
-	final link;
-	final storage;
-	final tower;
-	final observer;
-	final powerSpawn;
-	final powerBank;
-	final lab;
-	final terminal;
-	final nuker;
-	final factory;
-	final invaderCore;
+	final spawn = "spawn";
+	final creep = "creep";
+	final powerCreep = "powerCreep";
+	final source = "source";
+	final mineral = "mineral";
+	final deposit = "deposit";
+	final controller = "controller";
+	final constructedWall = "constructedWall";
+	final extension = "extension";
+	final link = "link";
+	final storage = "storage";
+	final tower = "tower";
+	final observer = "observer";
+	final powerSpawn = "powerSpawn";
+	final powerBank = "powerBank";
+	final lab = "lab";
+	final terminal = "terminal";
+	final nuker = "nuker";
+	final factory = "factory";
+	final invaderCore = "invaderCore";
 }
 
 extern enum abstract Energy(Int) {
@@ -151,7 +168,7 @@ extern enum abstract Spawn(Int) {
 	final SPAWN_ENERGY_CAPACITY = 300;
 }
 
-extern enum abstract Source(Int) {
+extern enum abstract SourceConstant(Int) {
 	final SOURCE_ENERGY_CAPACITY = 3000;
 	final SOURCE_ENERGY_NEUTRAL_CAPACITY = 1500;
 	final SOURCE_ENERGY_KEEPER_CAPACITY = 4000;
@@ -205,14 +222,14 @@ extern enum abstract Factory(Int) {
 }
 
 extern enum abstract BodyPart(String) {
-	final MOVE = move;
-	final WORK = work;
-	final CARRY = carry;
-	final ATTACK = attack;
-	final RANGED_ATTACK = ranged_attack;
-	final TOUGH = tough;
-	final HEAL = heal;
-	final CLAIM = claim;
+	final MOVE = "move";
+	final WORK = "work";
+	final CARRY = "carry";
+	final ATTACK = "attack";
+	final RANGED_ATTACK = "ranged_attack";
+	final TOUGH = "tough";
+	final HEAL = "heal";
+	final CLAIM = "claim";
 }
 
 extern enum abstract BodyPartCost(Int) {
@@ -242,6 +259,16 @@ extern enum abstract Power(Int) {
 	final RANGED_ATTACK_POWER = 10;
 	final HEAL_POWER = 12;
 	final RANGED_HEAL_POWER = 4;
+	final POWER_LEVEL_MULTIPLY = 1000;
+	final POWER_LEVEL_POW = 2;
+	final POWER_CREEP_SPAWN_COOLDOWN = 28800000; // 8 * 3600 * 1000
+	final POWER_CREEP_DELETE_COOLDOWN = 86400000; // 24 * 3600 * 1000
+	final POWER_CREEP_MAX_LEVEL = 25;
+	final POWER_CREEP_LIFE_TIME = 5000;
+}
+
+extern enum abstract PowerClass(String) {
+	final Operator = "operator";
 }
 
 extern enum abstract Cost(Int) {
@@ -270,7 +297,7 @@ extern enum abstract ConstructionCost(Int) {
 	final factory = 100000;
 }
 
-extern enum abstract Structure(String) {
+extern enum abstract StructureConstant(String) {
 	final STRUCTURE_EXTENSION = "extension";
 	final STRUCTURE_RAMPART = "rampart";
 	final STRUCTURE_ROAD = "road";
@@ -294,7 +321,26 @@ extern enum abstract Structure(String) {
 	final STRUCTURE_PORTAL = "portal";
 }
 
-extern enum abstract Resource(String) {
+extern enum abstract BuildableStructure(String) {
+	final STRUCTURE_EXTENSION = "extension";
+	final STRUCTURE_RAMPART = "rampart";
+	final STRUCTURE_ROAD = "road";
+	final STRUCTURE_SPAWN = "spawn";
+	final STRUCTURE_LINK = "link";
+	final STRUCTURE_WALL = "wall";
+	final STRUCTURE_STORAGE = "storage";
+	final STRUCTURE_TOWER = "tower";
+	final STRUCTURE_OBSERVER = "observer";
+	final STRUCTURE_POWER_SPAWN = "powerSpawn";
+	final STRUCTURE_LAB = "lab";
+	final STRUCTURE_TERMINAL = "terminal";
+	final STRUCTURE_CONTAINER = "container";
+	final STRUCTURE_NUKER = "nuker";
+	final STRUCTURE_FACTORY = "factory";
+
+}
+
+extern enum abstract ResourceConstant(String) {
 	final RESOURCE_ENERGY = "energy";
 	final RESOURCE_POWER = "power";
 	final RESOURCE_OPS = "ops";
@@ -514,7 +560,7 @@ extern enum abstract Common(Int) {
 	final MAX_CREEP_SIZE = 50;
 }
 
-extern enum abstract Mineral(Int) {
+extern enum abstract MineralConstant(Int) {
 	final MINERAL_REGEN_TIME = 50000;
 	final MINERAL_RANDOM_FACTOR = 2;
 	final MINERAL_DENSITY_CHANGE = 0.05;
@@ -551,7 +597,7 @@ extern enum abstract Density(Int) {
 	final DENSITY_ULTRA = 4;
 }
 
-extern enum abstract Deposit(Int) {
+extern enum abstract DepositConstant(Int) {
 	final DEPOSIT_EXHAUST_MULTIPLY = 0.001;
 	final DEPOSIT_EXHAUST_POW = 1.2;
 	final DEPOSIT_DECAY_TIME = 50000;
@@ -587,12 +633,12 @@ extern enum abstract NukeDamage(Int) {
 	final TWO = 5000000;
 }
 
-extern enum abstract TombStone(Int) {
+extern enum abstract TombStoneConstant(Int) {
 	final TOMBSTONE_DECAY_PER_PART = 5;
 	final TOMBSTONE_DECAY_POWER_CREEP = 500;
 }
 
-extern enum abstract Ruin(Int) {
+extern enum abstract RuinConstant(Int) {
 	final RUIN_DECAY = 500;
 }
 
@@ -615,7 +661,7 @@ extern enum abstract Market(Int) {
 	final MARKET_ORDER_LIFE_TIME = 1000 * 60 * 60 * 24 * 30;
 }
 
-extern enum abstract Flag(Int) {
+extern enum abstract FlagConstant(Int) {
 	final FLAGS_LIMIT = 10000;
 }
 
@@ -667,45 +713,45 @@ typedef LHOReaction = {
 }
 
 typedef MultiReaction = {
-	var UH:String;
-	var UO:String;
-	var ZH:String;
-	var ZO:String;
-	var KH:String;
-	var KO:String;
-	var LH:String;
-	var LO:String;
-	var GH:String;
-	var GO:String;
+	final UH:String;
+	final UO:String;
+	final ZH:String;
+	final ZO:String;
+	final KH:String;
+	final KO:String;
+	final LH:String;
+	final LO:String;
+	final GH:String;
+	final GO:String;
 }
 
 typedef Multi2Reaction = {
-	var UH2O:String;
-	var UHO2:String;
-	var LH2O:String;
-	var LHO2:String;
-	var KH2O:String;
-	var KHO2:String;
-	var ZH2O:String;
-	var ZHO2:String;
-	var GH2O:String;
-	var GHO2:String;
+	final UH2O:String;
+	final UHO2:String;
+	final LH2O:String;
+	final LHO2:String;
+	final KH2O:String;
+	final KHO2:String;
+	final ZH2O:String;
+	final ZHO2:String;
+	final GH2O:String;
+	final GHO2:String;
 }
 
 typedef ULReaction = {
-	var UL:String;
+	final UL:String;
 }
 
 typedef ZKReaction = {
-	var ZK:String;
+	final ZK:String;
 }
 
 typedef OHReaction = {
-	var OH:String;
+	final OH:String;
 }
 
 typedef XReaction = {
-	var X:String;
+	final X:String;
 }
 
 @:native("REACTIONS") extern enum abstract Reactions({}) {
@@ -743,38 +789,529 @@ typedef XReaction = {
 }
 
 extern enum abstract ReactionTime(Int) {
-	var OH = 20;
-	var ZK = 5;
-	var UL = 5;
-	var G = 5;
-	var UH = 10;
-	var UH2O = 5;
-	var XUH2O = 60;
-	var UO = 10;
-	var UHO2 = 5;
-	var XUHO2 = 60;
-	var KH = 10;
-	var KH2O = 5;
-	var XKH2O = 60;
-	var KO = 10;
-	var KHO2 = 5;
-	var XKHO2 = 60;
-	var LH = 15;
-	var LH2O = 10;
-	var XLH2O = 65;
-	var LO = 10;
-	var LHO2 = 5;
-	var XLHO2 = 60;
-	var ZH = 20;
-	var ZH2O = 40;
-	var XZH2O = 160;
-	var ZO = 10;
-	var ZHO2 = 5;
-	var XZHO2 = 60;
-	var GH = 10;
-	var GH2O = 15;
-	var XGH2O = 80;
-	var GO = 10;
-	var GHO2 = 30;
-	var XGHO2 = 150;
+	final OH = 20;
+	final ZK = 5;
+	final UL = 5;
+	final G = 5;
+	final UH = 10;
+	final UH2O = 5;
+	final XUH2O = 60;
+	final UO = 10;
+	final UHO2 = 5;
+	final XUHO2 = 60;
+	final KH = 10;
+	final KH2O = 5;
+	final XKH2O = 60;
+	final KO = 10;
+	final KHO2 = 5;
+	final XKHO2 = 60;
+	final LH = 15;
+	final LH2O = 10;
+	final XLH2O = 65;
+	final LO = 10;
+	final LHO2 = 5;
+	final XLHO2 = 60;
+	final ZH = 20;
+	final ZH2O = 40;
+	final XZH2O = 160;
+	final ZO = 10;
+	final ZHO2 = 5;
+	final XZHO2 = 60;
+	final GH = 10;
+	final GH2O = 15;
+	final XGH2O = 80;
+	final GO = 10;
+	final GHO2 = 30;
+	final XGHO2 = 150;
+}
+
+typedef Work = {
+	final UO:{harvest:Int};
+	final UHO2:{harvest:Int};
+	final XUHO2:{harvest:Int};
+	final LH:{build:Int, repiar:Int};
+	final LH2O:{build:Int, repiar:Int};
+	final XLH2O:{build:Int, repiar:Int};
+	final ZH:{dismantle:Int};
+	final ZH2O:{dismantle:Int};
+	final XZH2O:{dismantle:Int};
+	final GH:{upgradeController:Int};
+	final GH2O:{upgradeController:Int};
+	final XGH2O:{upgradeController:Int};
+}
+
+typedef Attack = {
+	final UH:{attack:Int};
+	final UH2O:{attack:Int};
+	final XUH2O:{attack:Int};
+}
+
+typedef RangedAttack = {
+	final KO:{rangedAttack:Int, rangedMassAttack:Int};
+	final KHO2:{rangedAttack:Int, rangedMassAttack:Int};
+	final XKHO2:{rangedAttack:Int, rangedMassAttack:Int};
+}
+
+typedef Heal = {
+	final LO:{heal:Int, rangedHeal:Int};
+	final LHO2:{heal:Int, rangedHeal:Int};
+	final XLHO2:{heal:Int, rangedHeal:Int};
+}
+
+typedef CarryT = {
+	final KH:{capacity:Int};
+	final KH2O:{capacity:Int};
+	final XKH2O:{capacity:Int};
+}
+
+typedef Move = {
+	final ZO:{fatigue:Int};
+	final ZHO2:{fatigue:Int};
+	final XZHO2:{fatigue:Int};
+}
+
+typedef Tough = {
+	final GO:{damage:Int};
+	final GHO2:{damage:Int};
+	final XGHO2:{damage:Int};
+}
+
+@:native("BOOSTS") extern enum abstract Boost({}) {
+	final work:Work;
+	final attack:Attack;
+	final ranged_attack:RangedAttack;
+	final heal:Heal;
+	final carry:CarryT;
+	final move:Move;
+	final tough:Tough;
+}
+
+typedef Components = {
+	final G:Int;
+	final U:Int;
+	final L:Int;
+	final K:Int;
+	final H:Int;
+	final Z:Int;
+	final O:Int;
+	final X:Int;
+	final energy:Int;
+	final mist:Int;
+	final biomass:Int;
+	final metal:Int;
+	final silicon:Int;
+	final utrium_bar:Int;
+	final lemergium_bar:Int;
+	final zynthium_bar:Int;
+	final keanium_bar:Int;
+	final ghodium_melt:Int;
+	final oxidant:Int;
+	final reductant:Int;
+	final purifier:Int;
+	final battery:Int;
+	final composite:Int;
+	final crystal:Int;
+	final liquid:Int;
+	final wire:Int;
+	@:native("switch") final switch_:Int;
+	final transistor:Int;
+	final microchip:Int;
+	final circuit:Int;
+	final device:Int;
+	final cell:Int;
+	final phlegm:Int;
+	final tissue:Int;
+	final muscle:Int;
+	final organoid:Int;
+	final organism:Int;
+	final alloy:Int;
+	final tube:Int;
+	final fixtures:Int;
+	final frame:Int;
+	final hydraulics:Int;
+	final machine:Int;
+	final condensate:Int;
+	final concentrate:Int;
+	final extract:Int;
+	final spirit:Int;
+	final emanation:Int;
+	final essence:Int;
+};
+
+typedef Commodity = {
+	final level:Int;
+	final amount:Int;
+	final cooldown:Int;
+	final components:{};
+}
+
+@:native("COMMODITIES") extern enum abstract Commodities(Commodity) {
+	final G:Commodity;
+	final U:Commodity;
+	final L:Commodity;
+	final K:Commodity;
+	final H:Commodity;
+	final Z:Commodity;
+	final O:Commodity;
+	final X:Commodity;
+	final energy:Commodity;
+	final mist:Commodity;
+	final biomass:Commodity;
+	final metal:Commodity;
+	final silicon:Commodity;
+	final utrium_bar:Commodity;
+	final lemergium_bar:Commodity;
+	final zynthium_bar:Commodity;
+	final keanium_bar:Commodity;
+	final ghodium_melt:Commodity;
+	final oxidant:Commodity;
+	final reductant:Commodity;
+	final purifier:Commodity;
+	final battery:Commodity;
+	final composite:Commodity;
+	final crystal:Commodity;
+	final liquid:Commodity;
+	final wire:Commodity;
+	@:native("switch") final switch_:Commodity;
+	final transistor:Commodity;
+	final microchip:Commodity;
+	final circuit:Commodity;
+	final device:Commodity;
+	final cell:Commodity;
+	final phlegm:Commodity;
+	final tissue:Commodity;
+	final muscle:Commodity;
+	final organoid:Commodity;
+	final organism:Commodity;
+	final alloy:Commodity;
+	final tube:Commodity;
+	final fixtures:Commodity;
+	final frame:Commodity;
+	final hydraulics:Commodity;
+	final machine:Commodity;
+	final condensate:Commodity;
+	final concentrate:Commodity;
+	final extract:Commodity;
+	final spirit:Commodity;
+	final emanation:Commodity;
+	final essence:Commodity;
+}
+
+extern enum abstract Look(String) {
+	final LOOK_CREEPS = "creep";
+	final LOOK_ENERGY = "energy";
+	final LOOK_RESOURCES = "resource";
+	final LOOK_SOURCES = "source";
+	final LOOK_MINERALS = "mineral";
+	final LOOK_DEPOSITS = "deposit";
+	final LOOK_STRUCTURES = "structure";
+	final LOOK_FLAGS = "flag";
+	final LOOK_CONSTRUCTION_SITES = "constructionSite";
+	final LOOK_NUKES = "nuke";
+	final LOOK_TERRAIN = "terrain";
+	final LOOK_TOMBSTONES = "tombstone";
+	final LOOK_POWER_CREEPS = "powerCreep";
+	final LOOK_RUINS = "ruin";
+}
+
+extern abstract INVADERS_ENERGY_GOAL(Int) {
+	@:selfCall
+	public inline function new() {
+		this = 100000;
+	}
+}
+
+extern abstract SYSTEM_USERNAME(String) {
+	@:selfCall
+	public inline function new() {
+		this = "Screeps";
+	}
+}
+
+extern abstract STRONGHOLD_DECAY_TICKS(Int) {
+	@:selfCall
+	public inline function new() {
+		this = 150000;
+	}
+}
+
+extern abstract INVADER_CORE_HITS(Int) {
+	@:selfCall
+	public inline function new() {
+		this = 1000000;
+	}
+}
+
+extern enum abstract Event(Int) {
+	final EVENT_ATTACK = 1;
+	final EVENT_OBJECT_DESTROYED = 2;
+	final EVENT_ATTACK_CONTROLLER = 3;
+	final EVENT_BUILD = 4;
+	final EVENT_HARVEST = 5;
+	final EVENT_HEAL = 6;
+	final EVENT_REPAIR = 7;
+	final EVENT_RESERVE_CONTROLLER = 8;
+	final EVENT_UPGRADE_CONTROLLER = 9;
+	final EVENT_EXIT = 10;
+	final EVENT_POWER = 11;
+	final EVENT_TRANSFER = 12;
+	final EVENT_ATTACK_TYPE_MELEE = 1;
+	final EVENT_ATTACK_TYPE_RANGED = 2;
+	final EVENT_ATTACK_TYPE_RANGED_MASS = 3;
+	final EVENT_ATTACK_TYPE_DISMANTLE = 4;
+	final EVENT_ATTACK_TYPE_HIT_BACK = 5;
+	final EVENT_ATTACK_TYPE_NUKE = 6;
+	final EVENT_HEAL_TYPE_MELEE = 1;
+	final EVENT_HEAL_TYPE_RANGED = 2;
+}
+
+extern enum abstract Pwr(Int) {
+	final PWR_GENERATE_OPS = 1;
+	final PWR_OPERATE_SPAWN = 2;
+	final PWR_OPERATE_TOWER = 3;
+	final PWR_OPERATE_STORAGE = 4;
+	final PWR_OPERATE_LAB = 5;
+	final PWR_OPERATE_EXTENSION = 6;
+	final PWR_OPERATE_OBSERVER = 7;
+	final PWR_OPERATE_TERMINAL = 8;
+	final PWR_DISRUPT_SPAWN = 9;
+	final PWR_DISRUPT_TOWER = 10;
+	final PWR_DISRUPT_SOURCE = 11;
+	final PWR_SHIELD = 12;
+	final PWR_REGEN_SOURCE = 13;
+	final PWR_REGEN_MINERAL = 14;
+	final PWR_DISRUPT_TERMINAL = 15;
+	final PWR_OPERATE_POWER = 16;
+	final PWR_FORTIFY = 17;
+	final PWR_OPERATE_CONTROLLER = 18;
+	final PWR_OPERATE_FACTORY = 19;
+}
+
+extern abstract EFFECT_INVULNERABILITY(Int) {
+	
+	@:selfCall
+	public inline function new() {
+		this = 1001;
+	}
+}
+
+extern abstract EFFECT_COLLAPSE_TIMER(Int) {
+	
+	@:selfCall
+	public inline function new() {
+		this = 1002;
+	}
+}
+
+extern enum abstract InvaderCoreCreepSpawnTime(Int) {
+	final ZERO = 0;
+	final ONE = 0;
+	final TWO = 6;
+	final THREE = 3;
+	final FOUR = 2;
+	final FIVE = 1;
+}
+
+extern abstract INVADER_CORE_EXPAND_TIME(Int) {
+	@:selfCall
+	public inline function new() {
+		this = 15000;
+	}
+}
+
+extern abstract INVADER_CORE_CONTROLLER_POWER(Int) {
+	@:selfCall
+	public inline function new() {
+		this = 100;
+	}
+}
+
+extern abstract INVADER_CORE_CONTROLLER_DOWNGRADE(Int) {
+	@:selfCall
+	public inline function new() {
+		this = 5000;
+	}
+}
+
+extern enum abstract StrongholdRampartHits(Int) {
+	final ZERO = 0;
+	final ONE = 50000;
+	final TWO = 200000;
+	final THREE = 500000;
+	final FOUR = 1000000;
+	final FIVE = 2000000;
+}
+
+typedef PowerObject = {
+	final className:PowerClass;
+	final level:ReadOnlyArray<Int>;
+	final cooldown:Int;
+	final ?effect:ReadOnlyArray<Float>;
+	final ?range:Int;
+	final ?energy:Int;
+	final ?period:Int;
+	final ?ops:EitherType<Int, ReadOnlyArray<Int>>;
+	final ?duration:EitherType<Int, ReadOnlyArray<Int>>;
+}
+
+extern typedef PI = Array<PowerObject>; 
+
+extern abstract POWER_INFO(ReadOnlyArray<PowerObject>) {
+	@:selfCall
+	public inline function new() {
+		this = [
+			null,
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 50,
+				effect: [1, 2, 4, 6, 8],
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 300,
+				duration: 1000,
+				range: 3,
+				ops: 100,
+				effect: [0.9, 0.7, 0.5, 0.35, 0.2],
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 10,
+				duration: 100,
+				range: 3,
+				ops: 10,
+				effect: [1.1, 1.2, 1.3, 1.4, 1.5],
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 800,
+				duration: 1000,
+				range: 3,
+				ops: 100,
+				effect: [500000, 1000000, 2000000, 4000000, 7000000],
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 50,
+				duration: 1000,
+				range: 3,
+				ops: 10,
+				effect: [2, 4, 6, 8, 10],
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 50,
+				range: 3,
+				ops: 2,
+				effect: [0.2, 0.4, 0.6, 0.8, 1.0],
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 400,
+				duration: [200, 400, 600, 800, 1000],
+				range: 3,
+				ops: 10,
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 500,
+				duration: 1000,
+				range: 3,
+				ops: 100,
+				effect: [0.9, 0.8, 0.7, 0.6, 0.5],
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 5,
+				range: 20,
+				ops: 10,
+				duration: [1, 2, 3, 4, 5],
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 0,
+				duration: 5,
+				range: 50,
+				ops: 10,
+				effect: [0.9, 0.8, 0.7, 0.6, 0.5],
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 100,
+				range: 3,
+				ops: 100,
+				duration: [100, 200, 300, 400, 500],
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				effect: [5000, 10000, 15000, 20000, 25000],
+				duration: 50,
+				cooldown: 20,
+				energy: 100,
+			},
+			{
+				className: Operator,
+				level: [10, 11, 12, 14, 22],
+				cooldown: 100,
+				duration: 300,
+				range: 3,
+				effect: [50, 100, 150, 200, 250],
+				period: 15,
+			},
+			{
+				className: Operator,
+				level: [10, 11, 12, 14, 22],
+				cooldown: 100,
+				duration: 100,
+				range: 3,
+				effect: [2, 4, 6, 8, 10],
+				period: 10,
+			},
+			{
+				className: Operator,
+				level: [20, 21, 22, 23, 24],
+				cooldown: 8,
+				duration: 10,
+				range: 50,
+				ops: [50, 40, 30, 20, 10],
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 5,
+				range: 3,
+				ops: 5,
+				duration: [1, 2, 3, 4, 5],
+			},
+			{
+				className: Operator,
+				level: [20, 21, 22, 23, 24],
+				cooldown: 800,
+				range: 3,
+				duration: 1000,
+				ops: 200,
+				effect: [10, 20, 30, 40, 50],
+			},
+			{
+				className: Operator,
+				level: [0, 2, 7, 14, 22],
+				cooldown: 1000,
+				range: 3,
+				duration: 1000,
+				ops: 100,
+			}
+		];
+	}
 }

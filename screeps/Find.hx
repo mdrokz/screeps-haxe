@@ -89,7 +89,7 @@ typedef FindPathOpts = {
 }
 
 typedef FindTypes = haxe.macro.MacroType<[
-	screeps.Macros.EnumTools.buildNestedFields([
+	screeps.Macros.MacroUtils.buildNestedFields([
 		"RoomPosition",
 		"AnyCreep",
 		"Source",

@@ -2,7 +2,7 @@ package screeps;
 
 import haxe.extern.EitherType;
 import haxe.ds.Either;
-import screeps.Macros.EnumTools;
+import screeps.Macros.MacroUtils;
 import haxe.ds.ReadOnlyArray;
 
 extern enum abstract ScreepsReturnCode(Int) {
@@ -23,6 +23,13 @@ extern enum abstract ScreepsReturnCode(Int) {
 	final ERR_NOT_ENOUGH_EXTENSIONS = -14;
 	final ERR_RCL_NOT_ENOUGH = -15;
 	final ERR_GCL_NOT_ENOUGH = -16;
+}
+
+extern enum abstract ExitConstant(Int) {
+	final FIND_EXIT_TOP = 1;
+	final FIND_EXIT_RIGHT = 3;
+	final FIND_EXIT_BOTTOM = 5;
+	final FIND_EXIT_LEFT = 7;
 }
 
 extern enum abstract Find(Int) {
@@ -88,17 +95,17 @@ extern enum abstract Colors(Int) {
 
 extern class Constants {
 	public static inline function COLORS_ALL():ReadOnlyArray<Colors> {
-		return EnumTools.getValues(Colors);
+		return MacroUtils.getValues(Colors);
 	}
 	public static inline function BODYPART_ALL():ReadOnlyArray<BodyPart> {
-		return EnumTools.getValues(BodyPart);
+		return MacroUtils.getValues(BodyPart);
 	}
 	public static inline function RESOURCE_ALL():ReadOnlyArray<ResourceConstant> {
-		return EnumTools.getValues(ResourceConstant);
+		return MacroUtils.getValues(ResourceConstant);
 	}
 
 	public static inline function INTERSHARD_RESOURCES():ReadOnlyArray<Purchase> {
-		return EnumTools.getValues(Purchase);
+		return MacroUtils.getValues(Purchase);
 	}
 }
 
@@ -319,6 +326,10 @@ extern enum abstract StructureConstant(String) {
 	final STRUCTURE_FACTORY = "factory";
 	final STRUCTURE_INVADER_CORE = "invadorCore";
 	final STRUCTURE_PORTAL = "portal";
+}
+
+extern enum abstract StructureSpawn(String) {
+	final STRUCTURE_SPAWN = "spawn";
 }
 
 extern enum abstract BuildableStructure(String) {
@@ -547,6 +558,10 @@ extern enum abstract GCL(Int) {
 extern enum abstract Mode(String) {
 	final MODE_SIMULATION = null;
 	final MODE_WORLD = null;
+}
+
+extern enum abstract Num(Int) {
+	 var ZERO = 0;
 }
 
 extern enum abstract Terrain(Int) {
@@ -997,7 +1012,7 @@ typedef Commodity = {
 	final essence:Commodity;
 }
 
-extern enum abstract Look(String) {
+extern enum abstract Look(String) from String to String {
 	final LOOK_CREEPS = "creep";
 	final LOOK_ENERGY = "energy";
 	final LOOK_RESOURCES = "resource";
@@ -1042,7 +1057,7 @@ extern abstract INVADER_CORE_HITS(Int) {
 	}
 }
 
-extern enum abstract Event(Int) {
+extern enum abstract EventConstant(Int) {
 	final EVENT_ATTACK = 1;
 	final EVENT_OBJECT_DESTROYED = 2;
 	final EVENT_ATTACK_CONTROLLER = 3;

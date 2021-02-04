@@ -1,6 +1,5 @@
 package screeps;
 
-import haxe.extern.EitherType;
 #if macro
 import haxe.macro.Context;
 import haxe.macro.Expr;
@@ -8,7 +7,7 @@ import haxe.macro.Expr;
 using haxe.macro.Tools;
 #end
 
-class EnumTools {
+class MacroUtils {
 	public static macro function getValues(typePath:Expr):Expr {
 		// Get the type from a given expression converted to string.
 		// This will work for identifiers and field access which is what we need,
@@ -38,8 +37,49 @@ class EnumTools {
 		}
 	}
 
-	macro public static function buildNestedFields(types:Array<String>):ComplexType {
+	macro public static function buildEnum(typePath:Expr):Array<Field> {
+		var type = Context.getType(typePath.toString());
 
+		var fields = Context.getBuildFields();
+
+		switch (type.follow()) {
+			case TAbstract(_.get() => ab, _) if (ab.meta.has(":enum")):
+				for (field in ab.impl.get().statics.get()) {
+					if (field.meta.has(":enum") && field.meta.has(":impl")) {
+						var fieldName = field.name;
+
+						var expr = field.expr().expr;
+
+						// trace(expr);
+
+						switch (field.expr().expr) {
+							case TCast(e, m): {
+									switch (e.expr) {
+										case TConst(TString(s)): {
+												fields.push({
+													name: fieldName,
+													kind: FVar(macro:String, macro $v{s}),
+													pos: Context.currentPos()
+												});
+											}
+
+										default:
+									}
+								}
+
+							default:
+						}
+					}
+				}
+			// Return collected expressions as an array declaration.
+			default:
+				// The given type is not an abstract, or doesn't have @:enum metadata, show a nice error message.
+				throw new Error(type.toString() + " should be @:enum abstract", typePath.pos);
+		}
+		return fields;
+	}
+
+	macro public static function buildNestedFields(types:Array<String>):ComplexType {
 		var types = types.map((x) -> x.toComplex());
 
 		var ct = types.pop();

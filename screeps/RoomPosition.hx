@@ -1,5 +1,10 @@
 package screeps;
 
+import screeps.Look.AllLookAtTypes;
+import screeps.Globals.Look;
+import screeps.Look.LookAtResult;
+import screeps.Flag;
+import haxe.macro.MacroType;
 import screeps.Globals.Directions;
 import screeps.Globals.FindStructure;
 import screeps.Find.FindTypes;
@@ -29,12 +34,23 @@ typedef FilterOptions = {
 typedef FilterFunction = (object:FindTypes) -> Bool;
 
 typedef PathStep = {
-	final x: Int;
-	final dx: Int;
-	final y: Int;
-	final dy: Int;
-	final Direction: Directions;
+	final x:Int;
+	final dx:Int;
+	final y:Int;
+	final dy:Int;
+	final Direction:Directions;
 }
+
+typedef Target = EitherType<RoomPosition, {pos:RoomPosition}>;
+typedef RoomTarget = EitherType<_HasRoomPosition, RoomPosition>;
+
+typedef LookConstructionSite = {
+	var constructionSite: ConstructionSite;
+}
+
+// typedef LookAtResult = MacroType<[screeps.Macros.MacroUtils.buildNestedFields(["ConstructionSite","Creep","Resource",""])]>
+
+
 
 /**
  * An object representing the specified position in the room.
@@ -96,8 +112,7 @@ extern class RoomPosition {
 	@:overload(function<T:StructureConstant>(type:FindStructure, ?opts:FindPathOpts & FilterOptions & {
 		?algorithm:FindClosestByPathAlgorithm
 	}):EitherType<T, Void> {})
-	@:overload(function<T:EitherType<_HasRoomPosition, RoomPosition>>(objects:Array<T>,
-		?opts:FindPathOpts & {?filter:(object:T) -> Bool}):EitherType<T, Void> {})
+	@:overload(function<T:RoomTarget>(objects:Array<T>, ?opts:FindPathOpts & {?filter:(object:T) -> Bool}):EitherType<T, Void> {})
 	public function findClosestByPath<K:Find>(type:K,
 		?opts:FindPathOpts & FilterOptions & {?algorithm:FindClosestByPathAlgorithm}):EitherType<FindTypes, Void>;
 
@@ -108,49 +123,97 @@ extern class RoomPosition {
 	 * @param opts An object containing pathfinding options (see Room.findPath), or one of the following: filter, algorithm
 	 */
 	@:overload(function<T:StructureConstant>(type:FindStructure, ?opts:FilterOptions):EitherType<T, Void> {})
-	@:overload(function<T:EitherType<_HasRoomPosition, RoomPosition>>(objects:Array<T>, ?opts:{filter:EitherType<Object, String>}):EitherType<T, Void> {})
+	@:overload(function<T:RoomTarget>(objects:Array<T>, ?opts:{filter:EitherType<Object, String>}):EitherType<T, Void> {})
 	public function findClosestByRange<K:Find>(type:K, ?opts:FilterOptions):EitherType<FindTypes, Void>;
 
 	/**
 	 * Find all objects in the specified linear range.
 	 * @param type Any of the FIND_* constants.
-     * @param objects An array of room's objects or RoomPosition objects that the search should be executed against.
+	 * @param objects An array of room's objects or RoomPosition objects that the search should be executed against.
 	 * @param range The range distance.
 	 * @param opts See Room.find.
 	 */
-	 @:overload(function<T:StructureConstant>(type: FindStructure,range: Int,?opts: FilterOptions): Array<T> {})
-	 @:overload(function<T: EitherType<_HasRoomPosition,RoomPosition>>(objects: Array<T>,range: Int,?opts: {?filter: EitherType<Object,String>}): Array<T> {})	
-	 public function findInRange<K:Find>(type:K, range:Int, ?opts:FilterOptions):Array<FindTypes>;
+	@:overload(function<T:StructureConstant>(type:FindStructure, range:Int, ?opts:FilterOptions):Array<T> {})
+	@:overload(function<T:RoomTarget>(objects:Array<T>, range:Int, ?opts:{?filter:EitherType<Object, String>}):Array<T> {})
+	public function findInRange<K:Find>(type:K, range:Int, ?opts:FilterOptions):Array<FindTypes>;
 
-	 /**
-     * Find an optimal path to the specified position using A* search algorithm.
-     *
-     * This method is a shorthand for Room.findPath. If the target is in another room, then the corresponding exit will be used as a target.
-     * @param x X position in the room.
+	/**
+	 * Find an optimal path to the specified position using A* search algorithm.
+	 *
+	 * This method is a shorthand for Room.findPath. If the target is in another room, then the corresponding exit will be used as a target.
+	 * @param x X position in the room.
 	 * @param y Y position in the room.
-     * @param target Can be a RoomPosition object or any object containing RoomPosition.
-     * @param opts An object containing pathfinding options flags (see Room.findPath for more details).
+	 * @param target Can be a RoomPosition object or any object containing RoomPosition.
+	 * @param opts An object containing pathfinding options flags (see Room.findPath for more details).
 	 */
-	 @:overload(function(target: FindStructure,?opts: FindPathOpts): Array<PathStep> {})
-	 public function findPathTo(x: Int, y: Int, ?opts: FindPathOpts): Array<PathStep>;
+	@:overload(function(target:FindStructure, ?opts:FindPathOpts):Array<PathStep> {})
+	public function findPathTo(x:Int, y:Int, ?opts:FindPathOpts):Array<PathStep>;
 
-	 /**
-     * Get linear direction to the specified position.
-     * @param x X position in the room.
+	/**
+	 * Get linear direction to the specified position.
+	 * @param x X position in the room.
 	 * @param y Y position in the room.
 	 * @param target Can be a RoomPosition object or any object containing RoomPosition.
 	 */
-	 @:overload(function(target: FindStructure): Directions {})
-	 public function getDirectionTo(x: Int, y: Int): Directions;
+	@:overload(function(target:FindStructure):Directions {})
+	public function getDirectionTo(x:Int, y:Int):Directions;
 
-	 /**
-     * You can create new RoomPosition object using its constructor.
-     * @param x X position in the room.
-     * @param y Y position in the room.
-     * @param roomName The room name.
+	/**
+	 * Get linear range to the specified position.
+	 * @param x X position in the room.
+	 * @param y Y position in the room.
+	 * @param target Can be a RoomPosition object or any object containing RoomPosition.
 	 */
-	 @:selfCall
-	 public function new(x: Int, y: Int, roomName: String): Void;
+	@:overload(function(target:Target):Int {})
+	public function getRangeTo(x:Int, y:Int):Int;
+
+	/**
+	 * Check whether this position is in the given range of another position.
+	 * @param x X position in the room.
+	 * @param y Y position in the room.
+	 * @param toPos The target position
+	 * @param range The range distance.
+	 */
+	@:overload(function(target:Target, range:Int):Bool {})
+	public function inRangeTo(x:Int, y:Int, range:Int):Bool;
+
+	/**
+	 * Check whether this position is the same as the specified position.
+	 * @param x X position in the room.
+	 * @param y Y position in the room.
+	 * @param target Can be a RoomPosition object or any object containing RoomPosition.
+	 */
+	@:overload(function(target:Target):Bool {})
+	public function isEqualTo(x:Int, y:Int):Bool;
+
+	/**
+	 * Check whether this position is on the adjacent square to the specified position. The same as inRangeTo(target, 1).
+	 * @param x X position in the room.
+	 * @param y Y position in the room.
+	 * @param target Can be a RoomPosition object or any object containing RoomPosition.
+	 */
+	@:overload(function(target:Target):Bool {})
+	public function isNearTo(x:Int, y:Int):Bool;
+
+	/**
+     * Get the list of objects at the specified room position.
+     */
+	 public function look(): Array<LookAtResult>;
+
+	/**
+     * Get an object with the given type at the specified room position.
+     * @param type One of the following string constants: constructionSite, creep, exit, flag, resource, source, structure, terrain
+     */
+	 public function lookFor<T:Look>(type: T): Array<AllLookAtTypes>;
+
+	/**
+	 * You can create new RoomPosition object using its constructor.
+	 * @param x X position in the room.
+	 * @param y Y position in the room.
+	 * @param roomName The room name.
+	 */
+	@:selfCall
+	public function new(x:Int, y:Int, roomName:String):Void;
 }
 
 typedef _HasRoomPosition = {

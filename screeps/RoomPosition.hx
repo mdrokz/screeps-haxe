@@ -3,29 +3,21 @@ package screeps;
 import screeps.Look.AllLookAtTypes;
 import screeps.Globals.Look;
 import screeps.Look.LookAtResult;
-import screeps.Flag;
-import haxe.macro.MacroType;
 import screeps.Globals.Directions;
 import screeps.Globals.FindStructure;
 import screeps.Find.FindTypes;
 import screeps.Globals.FindClosestByPathAlgorithm;
 import js.lib.Object;
-import haxe.macro.Expr;
-import screeps.Deposit;
-import screeps.TombStone;
-import screeps.Mineral;
 import screeps.Construction.ConstructionSite;
 import screeps.Structure;
-import screeps.Resource;
 import haxe.extern.EitherType;
 import screeps.Globals.Colors;
 import screeps.Find.FindPathOpts;
-import screeps.Creep.AnyCreep;
 import screeps.Globals.StructureConstant;
 import screeps.Globals.ScreepsReturnCode;
 import screeps.Globals.BuildableStructure;
-import screeps.Source.Source;
 import screeps.Globals.Find;
+
 
 typedef FilterOptions = {
 	?filter:EitherType<FilterFunction, EitherType<Object, String>>

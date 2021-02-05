@@ -7,14 +7,8 @@ import js.lib.Object;
 @:forward
 abstract JsMap<T, K>(Map<T, K>) {
 	@:arrayAccess
-	function get(key:T):Option<K> {
-		var v = this.get(key);
-
-		if (v != null) {
-			return Some(v);
-		} else {
-			return None;
-		}
+	function get(key:T):K {
+		return js.Syntax.code("{0}[{1}]", this, key);
 	}
 
 	public function new() {

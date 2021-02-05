@@ -1,3 +1,4 @@
+import screeps.Utils.JsMap;
 import screeps.Utils.JsObject;
 import screeps.Mineral;
 import screeps.Globals.Commodities;
@@ -26,6 +27,9 @@ class Main {
 
 		var x = ControllerStructures.spawn[1];
 
+		var mp = new JsMap<Int,String>();
+
+		var xx = mp[0];
 		
 		trace(x);
 		trace(s);

@@ -1,6 +1,8 @@
 package screeps;
 
-typedef Object = Map<String,Any>;
+using screeps.Utils.JsObject;
+
+typedef Object = JsObject<Any>;
 
 @:keep
 @:native("Memory") extern class Memory {

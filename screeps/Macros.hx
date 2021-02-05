@@ -6,6 +6,7 @@ import haxe.macro.Expr;
 
 using haxe.macro.Tools;
 #end
+using StringTools;
 
 class MacroUtils {
 	public static macro function getValues(typePath:Expr):Expr {
@@ -35,6 +36,36 @@ class MacroUtils {
 				// The given type is not an abstract, or doesn't have @:enum metadata, show a nice error message.
 				throw new Error(type.toString() + " should be @:enum abstract", typePath.pos);
 		}
+	}
+
+	macro public static function extendFields(typePath:Expr, filtered:Array<String>):Array<Field> {
+		var fields = Context.getBuildFields();
+
+		var type = Context.getType(typePath.toString());
+
+		switch (type.follow()) {
+			case TInst(_.get() => ab, _):
+				{
+					var classFields = ab.fields.get();
+
+					for (filterName in filtered)
+						classFields = classFields.filter(v -> !v.name.contains(filterName));
+
+					// trace(ab.fields.get());
+					for (field in classFields) {
+						var type = field.type.toComplexType();
+						fields.push({
+							name: field.name,
+							kind: FVar(macro:$type),
+							pos: Context.currentPos()
+						});
+					}
+				}
+
+			default:
+		}
+
+		return fields;
 	}
 
 	macro public static function buildEnum(typePath:Expr):Array<Field> {

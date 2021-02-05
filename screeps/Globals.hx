@@ -64,7 +64,7 @@ extern enum abstract Find(Int) {
 }
 
 extern enum abstract FindStructure(String) {
-	final FIND_STRUCTURES  = 107;
+	final FIND_STRUCTURES = 107;
 	final FIND_MY_STRUCTURES = 108;
 	final FIND_HOSTILE_STRUCTURES = 109;
 }
@@ -104,8 +104,8 @@ extern class Constants {
 		return MacroUtils.getValues(ResourceConstant);
 	}
 
-	public static inline function INTERSHARD_RESOURCES():ReadOnlyArray<Purchase> {
-		return MacroUtils.getValues(Purchase);
+	public static inline function INTERSHARD_RESOURCES():ReadOnlyArray<InterShard> {
+		return MacroUtils.getValues(InterShard);
 	}
 }
 
@@ -348,7 +348,6 @@ extern enum abstract BuildableStructure(String) {
 	final STRUCTURE_CONTAINER = "container";
 	final STRUCTURE_NUKER = "nuker";
 	final STRUCTURE_FACTORY = "factory";
-
 }
 
 extern enum abstract ResourceConstant(String) {
@@ -438,12 +437,24 @@ extern enum abstract ResourceConstant(String) {
 	final RESOURCE_ESSENCE = "essence";
 }
 
-extern enum abstract Purchase(String) {
+extern enum abstract Minerals(String) {
+	var RESOURCE_UTRIUM = "U";
+	var RESOURCE_LEMERGIUM = "L";
+	var RESOURCE_KEANIUM = "K";
+	var RESOURCE_ZYNTHIUM = "Z";
+	var RESOURCE_OXYGEN = "O";
+	var RESOURCE_HYDROGEN = "H";
+	var RESOURCE_CATALYST = "X";
+}
+
+extern enum abstract InterShard(String) {
 	final SUBSCRIPTION_TOKEN = "token";
 	final CPU_UNLOCK = "cpuUnlock";
 	final PIXEL = "pixel";
 	final ACCESS_KEY = "accessKey";
 }
+
+typedef MarketResource = EitherType<ResourceConstant, InterShard>;
 
 extern enum abstract ControllerLevels(Int) {
 	final ONE = 200;
@@ -561,13 +572,19 @@ extern enum abstract Mode(String) {
 }
 
 extern enum abstract Num(Int) {
-	 var ZERO = 0;
+	var ZERO = 0;
 }
 
 extern enum abstract Terrain(Int) {
 	final TERRAIN_MASK_WALL = 1;
 	final TERRAIN_MASK_SWAMP = 2;
 	final TERRAIN_MASK_LAVA = 4;
+}
+
+extern enum abstract TerrainType(String) {
+	final plain = "plain";
+	final swamp = "swamp";
+	final wall = "wall";
 }
 
 extern enum abstract Common(Int) {
@@ -665,12 +682,12 @@ extern enum abstract Decay(Int) {
 	final PORTAL_DECAY = 30000;
 }
 
-extern enum abstract Order(String) {
+extern enum abstract OrderConstant(String) {
 	final ORDER_SELL = "sell";
 	final ORDER_BUY = "buy";
 }
 
-extern enum abstract Market(Int) {
+extern enum abstract MarketConstant(Int) {
 	final MARKET_FEE = 0.05;
 	final MARKET_MAX_ORDERS = 300;
 	final MARKET_ORDER_LIFE_TIME = 1000 * 60 * 60 * 24 * 30;
@@ -1103,7 +1120,6 @@ extern enum abstract Pwr(Int) {
 }
 
 extern abstract EFFECT_INVULNERABILITY(Int) {
-	
 	@:selfCall
 	public inline function new() {
 		this = 1001;
@@ -1111,7 +1127,6 @@ extern abstract EFFECT_INVULNERABILITY(Int) {
 }
 
 extern abstract EFFECT_COLLAPSE_TIMER(Int) {
-	
 	@:selfCall
 	public inline function new() {
 		this = 1002;
@@ -1169,7 +1184,7 @@ typedef PowerObject = {
 	final ?duration:EitherType<Int, ReadOnlyArray<Int>>;
 }
 
-extern typedef PI = Array<PowerObject>; 
+extern typedef PI = Array<PowerObject>;
 
 extern abstract POWER_INFO(ReadOnlyArray<PowerObject>) {
 	@:selfCall
@@ -1329,4 +1344,55 @@ extern abstract POWER_INFO(ReadOnlyArray<PowerObject>) {
 			}
 		];
 	}
+}
+
+extern typedef Shard = {
+	/**
+	 * The name of the shard.
+	 */
+	var name:String;
+
+	/**
+	 * Currently always equals to normal.
+	 */
+	var type:String;
+
+	/**
+	 * Whether this shard belongs to the PTR.
+	 */
+	var ptr:Bool;
+}
+
+extern typedef GlobalControlLevel = {
+	/**
+	 * The current level.
+	 */
+	var level:Int;
+
+	/**
+	 * The current progress to the next level.
+	 */
+	var progress:Int;
+
+	/**
+	 * The progress required to reach the next level.
+	 */
+	var progressTotal:Int;
+}
+
+extern typedef GlobalPowerLevel = {
+	/**
+	 * The current level.
+	 */
+	var level:Int;
+
+	/**
+	 * The current progress to the next level.
+	 */
+	var progress:Int;
+
+	/**
+	 * The progress required to reach the next level.
+	 */
+	var progressTotal:Int;
 }

@@ -19,13 +19,17 @@ using haxe.macro.Tools;
 #end
 
 
+using screeps.GameMap.RouteOptions;
+
 
 class Test {
     public static function main() {
-        var m: Mineral = null;
         // var x: FilterFunction = (object: Mineral) -> {
         //     return false;
         // }
+        var v: RouteOptions;
+
+        // v.
     }
 
     public function test() {

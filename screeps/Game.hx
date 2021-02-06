@@ -5,7 +5,7 @@ import screeps.Globals.Shard;
 import screeps.Globals.GlobalPowerLevel;
 import screeps.Globals.GlobalControlLevel;
 import screeps.Cpu.CPU;
-import screeps.Globals.StructureSpawn;
+import screeps.Structure.StructureSpawn;
 import screeps.Construction.ConstructionSite;
 import screeps.Creep.PowerCreep;
 using screeps.Utils.JsObject;

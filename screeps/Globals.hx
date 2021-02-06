@@ -329,8 +329,11 @@ extern enum abstract StructureConstant(String) {
 	final STRUCTURE_PORTAL = "portal";
 }
 
-extern enum abstract StructureSpawn(String) {
-	final STRUCTURE_SPAWN = "spawn";
+extern abstract STRUCTURE_SPAWN(String) {
+	@:selfCall
+	public inline function new() {
+		this = "spawn";
+	}
 }
 
 extern enum abstract BuildableStructure(String) {
@@ -438,8 +441,8 @@ extern enum abstract ResourceConstant(String) {
 	final RESOURCE_ESSENCE = "essence";
 }
 
-typedef Resources = MacroType<[screeps.Macros.MacroUtils.buildStructureFromEnum(ResourceConstant,["switch"])]> & {
-	@:native("switch") var _switch: Int;
+typedef Resources = MacroType<[screeps.Macros.MacroUtils.buildStructureFromEnum(ResourceConstant, ["switch"])]> & {
+	@:native("switch") var _switch:Int;
 }
 
 extern enum abstract Minerals(String) {

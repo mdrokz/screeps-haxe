@@ -19,7 +19,7 @@ import screeps.Globals.Find;
 import screeps.Find.FindTypes;
 import screeps.RoomPosition.FilterOptions;
 import screeps.Globals.Colors;
-import screeps.Globals.StructureSpawn;
+import screeps.Globals.STRUCTURE_SPAWN;
 import screeps.Globals.StructureConstant;
 import screeps.RoomPosition.RoomTarget;
 import screeps.Globals.ScreepsReturnCode;
@@ -283,8 +283,8 @@ extern class Room {
 	 * @returns Result Code: OK, ERR_INVALID_TARGET, ERR_INVALID_ARGS, ERR_RCL_NOT_ENOUGH
 	 */
 	@:overload(function(pos:RoomTarget, structure:StructureConstant):ScreepsReturnCode {})
-	@:overload(function(x:Int, y:Int, structureType:StructureSpawn, ?name:String):ScreepsReturnCode {})
-	@:overload(function(pos:RoomTarget, structureType:StructureSpawn, ?name:String):ScreepsReturnCode {})
+	@:overload(function(x:Int, y:Int, structureType:STRUCTURE_SPAWN, ?name:String):ScreepsReturnCode {})
+	@:overload(function(pos:RoomTarget, structureType:STRUCTURE_SPAWN, ?name:String):ScreepsReturnCode {})
 	public function createConstructionSite(x:Int, y:Int, structureType:BuildableStructure):ScreepsReturnCode;
 
 	/**

@@ -4,6 +4,7 @@ import haxe.extern.EitherType;
 import haxe.ds.Either;
 import screeps.Macros.MacroUtils;
 import haxe.ds.ReadOnlyArray;
+import haxe.macro.MacroType;
 
 extern enum abstract ScreepsReturnCode(Int) {
 	final OK = 0;
@@ -432,9 +433,13 @@ extern enum abstract ResourceConstant(String) {
 	final RESOURCE_CONDENSATE = "condensate";
 	final RESOURCE_CONCENTRATE = "concentrate";
 	final RESOURCE_EXTRACT = "extract";
-	final RESOURCE_SPIRIT = "extract";
+	final RESOURCE_SPIRIT = "spirit";
 	final RESOURCE_EMANATION = "emanation";
 	final RESOURCE_ESSENCE = "essence";
+}
+
+typedef Resources = MacroType<[screeps.Macros.MacroUtils.buildStructureFromEnum(ResourceConstant,["switch"])]> & {
+	@:native("switch") var _switch: Int;
 }
 
 extern enum abstract Minerals(String) {

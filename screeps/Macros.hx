@@ -4,6 +4,7 @@ package screeps;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 
+using haxe.macro.ExprTools;
 using haxe.macro.Tools;
 #end
 using StringTools;
@@ -108,6 +109,49 @@ class MacroUtils {
 				throw new Error(type.toString() + " should be @:enum abstract", typePath.pos);
 		}
 		return fields;
+	}
+
+	macro public static function buildStructureFromEnum(typePath:Expr, filter:Array<String>):ComplexType {
+		var type = Context.getType(typePath.toString());
+
+		var structure:ComplexType = macro:{};
+
+		switch (type.follow()) {
+			case TAbstract(_.get() => ab, _) if (ab.meta.has(":enum")):
+				{
+					for (field in ab.impl.get().statics.get()) {
+						switch (field.expr().expr) {
+							case TCast(e, m): {
+									switch (e.expr) {
+										case TConst(TString(s)): {
+												var skip = false;
+
+												for (v in filter) v == s ? skip = true : skip = false;
+
+												if (!skip) {
+													var v = EConst(CString(s, DoubleQuotes));
+													var x:Expr = {
+														expr: v,
+														pos: Context.currentPos()
+													}
+
+													structure = macro:{var $s:Int;}
+														& $structure;
+												}
+											}
+
+										default:
+									}
+								}
+
+							default:
+						}
+					}
+				}
+			default:
+		}
+
+		return structure;
 	}
 
 	macro public static function buildNestedFields(types:Array<String>):ComplexType {

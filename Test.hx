@@ -8,6 +8,7 @@ import screeps.Nuke;
 import screeps.TombStone;
 import screeps.Deposit;
 import screeps.Ruin;
+using screeps.Globals.Resources;
 import haxe.extern.EitherType;
 import screeps.Mineral;
 // import screeps.RoomPosition.FilterFunction;
@@ -27,7 +28,7 @@ class Test {
         // var x: FilterFunction = (object: Mineral) -> {
         //     return false;
         // }
-        var v: RouteOptions;
+        var v: OwnedStructure;
 
         // v.
     }

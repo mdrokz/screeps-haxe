@@ -2,8 +2,10 @@ package screeps;
 
 import haxe.extern.EitherType;
 import screeps.Globals.ResourceConstant;
+import screeps.Globals.Resources;
 
-extern typedef StoreBase = {
+
+extern typedef GenericStoreBase = {
 	/**
 	 * Returns capacity of this store for the specified resource. For a general purpose store, it returns total capacity if `resource` is undefined.
 	 * @param resource The type of the resource.
@@ -26,4 +28,4 @@ extern typedef StoreBase = {
 	public function getFreeCapacity(?resource:ResourceConstant):EitherType<Int, Void>;
 }
 
-extern typedef StoreDefinition = {};
+extern typedef GenericStore = GenericStoreBase & Resources & {};

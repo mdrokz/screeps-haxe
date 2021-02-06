@@ -1,6 +1,8 @@
 package screeps;
 
-import screeps.Store.StoreDefinition;
+import screeps.Creep.AnyCreep;
+import screeps.Globals.ResourceConstant;
+import screeps.Store.GenericStore;
 import haxe.extern.EitherType;
 import screeps.Globals.ScreepsReturnCode;
 import screeps.Globals.StructureConstant;
@@ -176,10 +178,10 @@ extern class StructureController {
 	/**
 	 * Make your claimed controller neutral again.
 	 */
-    public function unclaim():ScreepsReturnCode;
-    
-    @:selfCall
-    public function new(): Void;
+	public function unclaim():ScreepsReturnCode;
+
+	@:selfCall
+	public function new():Void;
 }
 
 /**
@@ -193,7 +195,7 @@ extern class StructureStorage {
 	/**
 	 * An object with the storage contents.
 	 */
-	var store:StoreDefinition;
+	var store:GenericStore;
 
 	/**
 	 * The total amount of resources the storage can contain.
@@ -202,4 +204,550 @@ extern class StructureStorage {
 	var storeCapacity:Int;
 }
 
-extern class StructureTerminal {}
+/**
+ * Sends any resources to a Terminal in another room.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructureTerminal {
+	final prototype:StructureTerminal;
+
+	/**
+	 * The remaining amount of ticks while this terminal cannot be used to make StructureTerminal.send or Game.market.deal calls.
+	 */
+	var cooldown:Int;
+
+	/**
+	 * A Store object that contains cargo of this structure.
+	 */
+	var store:GenericStore;
+
+	/**
+	 * The total amount of resources the storage can contain.
+	 * @deprecated An alias for .store.getCapacity().
+	 */
+	var storeCapacity:Int;
+
+	/**
+	 * Sends resource to a Terminal in another room with the specified name.
+	 * @param resourceType One of the RESOURCE_* constants.
+	 * @param amount The amount of resources to be sent.
+	 * @param destination The name of the target room. You don't have to gain visibility in this room.
+	 * @param description The description of the transaction. It is visible to the recipient. The maximum length is 100 characters.
+	 */
+	public function send(resourceType:ResourceConstant, amount:Int, destination:String, ?description:String):ScreepsReturnCode;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * Contains up to 2,000 resource units. Can be constructed in neutral rooms. Decays for 5,000 hits per 100 ticks.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(Structure, ["prototype"]))
+extern class StructureContainer {
+	final prototype:StructureContainer;
+
+	/**
+	 * An object with the structure contents. Each object key is one of the RESOURCE_* constants, values are resources
+	 * amounts. Use _.sum(structure.store) to get the total amount of contents
+	 */
+	var store:GenericStore;
+
+	/**
+	 * The total amount of resources the structure can contain.
+	 * @deprecated An alias for .store.getCapacity().
+	 */
+	var storeCapacity:Int;
+
+	/**
+	 * The amount of game ticks when this container will lose some hit points.
+	 */
+	var ticksToDecay:Int;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * A non-player structure.
+ * Instantly teleports your creeps to a distant room acting as a room exit tile.
+ * Portals appear randomly in the central room of each sector.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(Structure, ["prototype"]))
+extern class StructurePortal {
+	final prototype:StructurePortal;
+
+	/**
+	 * If this is an inter-room portal, then this property contains a RoomPosition object leading to the point in the destination room.
+	 * If this is an inter-shard portal, then this property contains an object with shard and room string properties.
+	 * Exact coordinates are undetermined, the creep will appear at any free spot in the destination room.
+	 */
+	var destination:EitherType<RoomPosition, {shard:String, room:String}>;
+
+	/**
+	 * The amount of game ticks when the portal disappears, or undefined when the portal is stable.
+	 */
+	var ticksToDecay:EitherType<Int, Void>;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * Launches a nuke to another room dealing huge damage to the landing area.
+ * Each launch has a cooldown and requires energy and ghodium resources. Launching
+ * creates a Nuke object at the target room position which is visible to any player
+ * until it is landed. Incoming nuke cannot be moved or cancelled. Nukes cannot
+ * be launched from or to novice rooms.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructureNuker {
+	final prototype:StructureNuker;
+
+	/**
+	 * The amount of energy contained in this structure.
+	 * @deprecated An alias for .store[RESOURCE_ENERGY].
+	 */
+	var energy:Int;
+
+	/**
+	 * The total amount of energy this structure can contain.
+	 * @deprecated An alias for .store.getCapacity(RESOURCE_ENERGY).
+	 */
+	var energyCapacity:Int;
+
+	/**
+	 * The amount of energy contained in this structure.
+	 * @deprecated An alias for .store[RESOURCE_GHODIUM].
+	 */
+	var ghodium:Int;
+
+	/**
+	 * The total amount of energy this structure can contain.
+	 * @deprecated An alias for .store.getCapacity(RESOURCE_GHODIUM).
+	 */
+	var ghodiumCapacity:Int;
+
+	/**
+	 * The amount of game ticks the link has to wait until the next transfer is possible.
+	 */
+	var cooldown:Int;
+
+	/**
+	 * A Store object that contains cargo of this structure.
+	 */
+	var store:GenericStore;
+
+	/**
+	 * Launch a nuke to the specified position.
+	 * @param pos The target room position.
+	 */
+	public function launchNuke(pos:RoomPosition):ScreepsReturnCode;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * A structure which produces trade commodities from base minerals and other commodities.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructureFactory {
+	final prototype:StructureFactory;
+
+	/**
+	 * The amount of game ticks the factory has to wait until the next produce is possible.
+	 */
+	var cooldown:Int;
+
+	/**
+	 * The level of the factory.
+	 * Can be set by applying the PWR_OPERATE_FACTORY power to a newly built factory.
+	 * Once set, the level cannot be changed.
+	 */
+	var level:Int;
+
+	/**
+	 * An object with the structure contents.
+	 */
+	var store:GenericStore;
+
+	/**
+	 * Produces the specified commodity.
+	 * All ingredients should be available in the factory store.
+	 */
+	public function produce(resource:ResourceConstant):ScreepsReturnCode;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * A structure which is a control center of NPC Strongholds, and also rules all invaders in the sector.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructureInvaderCore {
+	final prototype:StructureInvaderCore;
+
+	/**
+	 * The level of the stronghold. The amount and quality of the loot depends on the level.
+	 */
+	var level:Int;
+
+	/**
+	 * Shows the timer for a not yet deployed stronghold, undefined otherwise.
+	 */
+	var ticksToDeploy:Int;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * Contains energy which can be spent on spawning bigger creeps. Extensions can
+ * be placed anywhere in the room, any spawns will be able to use them regardless
+ * of distance.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructureExtension {
+	final prototype:StructureExtension;
+
+	/**
+	 * The amount of energy containing in the extension.
+	 * @deprecated An alias for .store[RESOURCE_ENERGY].
+	 */
+	var energy:Int;
+
+	/**
+	 * The total amount of energy the extension can contain.
+	 * @deprecated An alias for .store.getCapacity(RESOURCE_ENERGY).
+	 */
+	var energyCapacity:Int;
+
+	/**
+	 * A Store object that contains cargo of this structure.
+	 */
+	var store:GenericStore;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * Remotely transfers energy to another Link in the same room.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructureLink {
+	final prototype:StructureLink;
+
+	/**
+	 * The amount of game ticks the link has to wait until the next transfer is possible.
+	 */
+	var cooldown:Int;
+
+	/**
+	 * The amount of energy containing in the link.
+	 * @deprecated An alias for .store[RESOURCE_ENERGY].
+	 */
+	var energy:Int;
+
+	/**
+	 * The total amount of energy the link can contain.
+	 * @deprecated An alias for .store.getCapacity(RESOURCE_ENERGY).
+	 */
+	var energyCapacity:Int;
+
+	/**
+	 * A Store object that contains cargo of this structure.
+	 */
+	var store:GenericStore;
+
+	/**
+	 * Transfer energy from the link to another link or a creep.
+	 *
+	 * If the target is a creep, it has to be at adjacent square to the link.
+	 *
+	 * If the target is a link, it can be at any location in the same room.
+	 *
+	 * Remote transfer process implies 3% energy loss and cooldown delay depending on the distance.
+	 * @param target The target object.
+	 * @param amount The amount of energy to be transferred. If omitted, all the available energy is used.
+	 */
+	public function transferEnergy(target:EitherType<Creep, StructureLink>, ?amount:Int):ScreepsReturnCode;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * Allows to harvest mineral deposits.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructureExtractor {
+	final prototype:StructureExtractor;
+
+	/**
+	 * The amount of game ticks until the next harvest action is possible.
+	 */
+	var cooldown:Int;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * Remotely attacks or heals creeps, or repairs structures. Can be targeted to
+ * any object in the room. However, its effectiveness highly depends on the
+ * distance. Each action consumes energy.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructureTower {
+	final prototype:StructureTower;
+
+	/**
+	 * The amount of energy containing in this structure.
+	 * @deprecated An alias for .store[RESOURCE_ENERGY].
+	 */
+	var energy:Int;
+
+	/**
+	 * The total amount of energy this structure can contain.
+	 * @deprecated An alias for .store.getCapacity(RESOURCE_ENERGY).
+	 */
+	var energyCapacity:Int;
+
+	/**
+	 * A Store object that contains cargo of this structure.
+	 */
+	var store:GenericStore;
+
+	/**
+	 * Remotely attack any creep or structure in the room. Consumes 10 energy units per tick. Attack power depends on the distance to the target: from 600 hits at range 10 to 300 hits at range 40.
+	 * @param target The target creep.
+	 */
+	public function attack(target:EitherType<AnyCreep, Structure>):ScreepsReturnCode;
+
+	/**
+	 * Remotely heal any creep in the room. Consumes 10 energy units per tick. Heal power depends on the distance to the target: from 400 hits at range 10 to 200 hits at range 40.
+	 * @param target The target creep.
+	 */
+	public function heal(target:AnyCreep):ScreepsReturnCode;
+
+	/**
+	 * Remotely repair any structure in the room. Consumes 10 energy units per tick. Repair power depends on the distance to the target: from 600 hits at range 10 to 300 hits at range 40.
+	 * @param target The target structure.
+	 */
+	public function repair(target:Structure):ScreepsReturnCode;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * Blocks movement of all creeps.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(Structure, ["prototype"]))
+extern class StructureWall {
+	final prototype:StructureWall;
+
+	/**
+	 * The amount of game ticks when the wall will disappear (only for automatically placed border walls at the start of the game).
+	 */
+	var ticksToLive:Int;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * Produces mineral compounds from base minerals and boosts creeps.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructureLab {
+	final prototype:StructureLab;
+
+	/**
+	 * The amount of game ticks the lab has to wait until the next reaction is possible.
+	 */
+	var cooldown:Int;
+
+	/**
+	 * The amount of energy containing in the lab. Energy is used for boosting creeps.
+	 * @deprecated An alias for .store[RESOURCE_ENERGY].
+	 */
+	var energy:Int;
+
+	/**
+	 * The total amount of energy the lab can contain.
+	 * @deprecated An alias for .store.getCapacity(RESOURCE_ENERGY).
+	 */
+	var energyCapacity:Int;
+
+	/**
+	 * The amount of mineral resources containing in the lab.
+	 * @deprecated An alias for lab.store[lab.mineralType].
+	 */
+	var mineralAmount:Int;
+
+	/**
+	 * The type of minerals containing in the lab. Labs can contain only one mineral type at the same time.
+	 * Null in case there is no mineral resource in the lab.
+	 */
+	var mineralType:EitherType<ResourceConstant, Void>;
+
+	/**
+	 * The total amount of minerals the lab can contain.
+	 * @deprecated An alias for lab.store.getCapacity(lab.mineralType || yourMineral).
+	 */
+	var mineralCapacity:Int;
+
+	/**
+	 * A Store object that contains cargo of this structure.
+	 */
+	var store:GenericStore;
+
+	/**
+	 * Boosts creep body part using the containing mineral compound. The creep has to be at adjacent square to the lab. Boosting one body part consumes 30 mineral units and 20 energy units.
+	 * @param creep The target creep.
+	 * @param bodyPartsCount The number of body parts of the corresponding type to be boosted.
+	 *
+	 * Body parts are always counted left-to-right for TOUGH, and right-to-left for other types.
+	 *
+	 * If undefined, all the eligible body parts are boosted.
+	 */
+	public function boostCreep(creep:Creep, ?bodyPartsCount:Int):ScreepsReturnCode;
+
+	/**
+	 * Immediately remove boosts from the creep and drop 50% of the mineral compounds used to boost it onto the ground regardless of the creep's remaining time to live.
+	 * The creep has to be at adjacent square to the lab.
+	 * Unboosting requires cooldown time equal to the total sum of the reactions needed to produce all the compounds applied to the creep.
+	 * @param creep The target creep.
+	 */
+	public function unboostCreep(creep:Creep):ScreepsReturnCode;
+
+	/**
+	 * Breaks mineral compounds back into reagents. The same output labs can be used by many source labs.
+	 * @param lab1 The first result lab.
+	 * @param lab2 The second result lab.
+	 */
+	public function reverseReaction(lab1:StructureLab, lab2:StructureLab):ScreepsReturnCode;
+
+	/**
+	 * Produce mineral compounds using reagents from two another labs. Each lab has to be within 2 squares range. The same input labs can be used by many output labs
+	 * @param lab1 The first source lab.
+	 * @param lab2 The second source lab.
+	 */
+	public function runReaction(lab1:StructureLab, lab2:StructureLab):ScreepsReturnCode;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * Provides visibility into a distant room from your script.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructureObserver {
+	final prototype:StructureObserver;
+
+	/**
+	 * Provide visibility into a distant room from your script. The target room object will be available on the next tick. The maximum range is 5 rooms.
+	 * @param roomName The room to observe.
+	 */
+	public function observeRoom(roomName:String):ScreepsReturnCode;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * Non-player structure. Contains power resource which can be obtained by destroying the structure. Hits the attacker creep back on each attack.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructurePowerBank {
+	final prototype:StructurePowerBank;
+
+	/**
+	 * The amount of power containing.
+	 */
+	var power:Int;
+
+	/**
+	 * The amount of game ticks when this structure will disappear.
+	 */
+	var ticksToDecay:Int;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * Non-player structure. Contains power resource which can be obtained by
+ * destroying the structure. Hits the attacker creep back on each attack.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructurePowerSpawn {
+	final prototype:StructurePowerSpawn;
+
+	/**
+	 * The amount of energy containing in this structure.
+	 * @deprecated An alias for .store[RESOURCE_ENERGY].
+	 */
+	var energy:Int;
+
+	/**
+	 * The total amount of energy this structure can contain.
+	 * @deprecated An alias for .store.getCapacity(RESOURCE_ENERGY).
+	 */
+	var energyCapacity:Int;
+
+	/**
+	 * The amount of power containing in this structure.
+	 * @deprecated An alias for .store[RESOURCE_POWER].
+	 */
+	var power:Int;
+
+	/**
+	 * The total amount of power this structure can contain.
+	 * @deprecated An alias for .store.getCapacity(RESOURCE_POWER).
+	 */
+	var powerCapacity:Int;
+
+	/**
+	 *
+	 */
+	var store:GenericStore;
+
+	/**
+	 * Register power resource units into your account. Registered power allows to develop power creeps skills. Consumes 1 power resource unit and 50 energy resource units.
+	 */
+	public function processPower():ScreepsReturnCode;
+
+	@:selfCall
+	public function new():Void;
+}
+
+/**
+ * Blocks movement of hostile creeps, and defends your creeps and structures on
+ * the same tile. Can be used as a controllable gate.
+ */
+@:build(screeps.Macros.MacroUtils.extendFields(OwnedStructure, ["prototype"]))
+extern class StructureRampart {
+	final prototype:StructureRampart;
+
+	/**
+	 * The amount of game ticks when this rampart will lose some hit points.
+	 */
+	var ticksToDecay:Int;
+
+	/**
+	 * If false (default), only your creeps can step on the same square. If true, any hostile creeps can pass through.
+	 */
+	var isPublic:Bool;
+
+	/**
+	 * Make this rampart public to allow other players' creeps to pass through.
+	 * @param isPublic Whether this rampart should be public or non-public
+	 */
+	public function setPublic(isPublic:Bool):Void;
+}

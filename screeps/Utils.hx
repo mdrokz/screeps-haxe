@@ -1,7 +1,6 @@
 package screeps;
 
 import js.lib.Map;
-import haxe.ds.Option;
 import js.lib.Object;
 
 @:forward

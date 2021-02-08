@@ -96,7 +96,7 @@ extern class OwnedStructure {
 }
 
 typedef ReservationDefinition = {
-	var sername:String;
+	var username:String;
 	var ticksToEnd:Int;
 }
 

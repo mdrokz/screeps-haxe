@@ -6,6 +6,7 @@ import screeps.Resource;
 import screeps.Construction.ConstructionSite;
 import screeps.Structure;
 import screeps.Cost.CostMatrix;
+import screeps.Style.PolyStyle;
 
 typedef FindPathOpts = {
 	/**
@@ -86,6 +87,33 @@ typedef FindPathOpts = {
 	 * Cost for walking on swamp positions. The default is 5.
 	 */
 	var ?swampCost:Int;
+}
+
+typedef MoveToOpts = FindPathOpts & {
+    /**
+     * This option enables reusing the path found along multiple game ticks. It allows to save CPU time, but can result in a slightly
+     * slower creep reaction behavior. The path is stored into the creep's memory to the `_move` property. The `reusePath` value defines
+     * the amount of ticks which the path should be reused for. The default value is 5. Increase the amount to save more CPU, decrease
+     * to make the movement more consistent. Set to 0 if you want to disable path reusing.
+     */
+    var ?reusePath: Int;
+
+    /**
+     * If `reusePath` is enabled and this option is set to true, the path will be stored in memory in the short serialized form using
+     * `Room.serializePath`. The default value is true.
+     */
+    var ?serializeMemory: Bool;
+
+    /**
+     * If this option is set to true, `moveTo` method will return `ERR_NOT_FOUND` if there is no memorized path to reuse. This can
+     * significantly save CPU time in some cases. The default value is false.
+     */
+    var ?noPathFinding: Bool;
+
+    /**
+     * Draw a line along the creep’s path using `RoomVisual.poly`. You can provide either an empty object or custom style parameters.
+     */
+    var ?visualizePathStyle: PolyStyle;
 }
 
 typedef Pos = {

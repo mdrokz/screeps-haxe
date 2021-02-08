@@ -354,6 +354,13 @@ extern enum abstract BuildableStructure(String) {
 	final STRUCTURE_FACTORY = "factory";
 }
 
+extern enum abstract AlloyDeposit(String) {
+	final RESOURCE_BIOMASS = "biomass";
+	final RESOURCE_METAL = "metal";
+	final RESOURCE_MIST = "mist";
+	final RESOURCE_SILICON = "silicon";
+}
+
 extern enum abstract ResourceConstant(String) {
 	final RESOURCE_ENERGY = "energy";
 	final RESOURCE_POWER = "power";
@@ -442,17 +449,17 @@ extern enum abstract ResourceConstant(String) {
 }
 
 typedef Resources = MacroType<[screeps.Macros.MacroUtils.buildStructureFromEnum(ResourceConstant, ["switch"])]> & {
-	@:native("switch") var _switch:Int;
+	@:native("switch") final _switch:Int;
 }
 
 extern enum abstract Minerals(String) {
-	var RESOURCE_UTRIUM = "U";
-	var RESOURCE_LEMERGIUM = "L";
-	var RESOURCE_KEANIUM = "K";
-	var RESOURCE_ZYNTHIUM = "Z";
-	var RESOURCE_OXYGEN = "O";
-	var RESOURCE_HYDROGEN = "H";
-	var RESOURCE_CATALYST = "X";
+	final RESOURCE_UTRIUM = "U";
+	final RESOURCE_LEMERGIUM = "L";
+	final RESOURCE_KEANIUM = "K";
+	final RESOURCE_ZYNTHIUM = "Z";
+	final RESOURCE_OXYGEN = "O";
+	final RESOURCE_HYDROGEN = "H";
+	final RESOURCE_CATALYST = "X";
 }
 
 extern enum abstract InterShard(String) {
@@ -580,7 +587,7 @@ extern enum abstract Mode(String) {
 }
 
 extern enum abstract Num(Int) {
-	var ZERO = 0;
+	final ZERO = 0;
 }
 
 extern enum abstract Terrain(Int) {
@@ -1358,49 +1365,109 @@ extern typedef Shard = {
 	/**
 	 * The name of the shard.
 	 */
-	var name:String;
+	final name:String;
 
 	/**
 	 * Currently always equals to normal.
 	 */
-	var type:String;
+	final type:String;
 
 	/**
 	 * Whether this shard belongs to the PTR.
 	 */
-	var ptr:Bool;
+	final ptr:Bool;
 }
 
 extern typedef GlobalControlLevel = {
 	/**
 	 * The current level.
 	 */
-	var level:Int;
+	final level:Int;
 
 	/**
 	 * The current progress to the next level.
 	 */
-	var progress:Int;
+	final progress:Int;
 
 	/**
 	 * The progress required to reach the next level.
 	 */
-	var progressTotal:Int;
+	final progressTotal:Int;
 }
 
 extern typedef GlobalPowerLevel = {
 	/**
 	 * The current level.
 	 */
-	var level:Int;
+	final level:Int;
 
 	/**
 	 * The current progress to the next level.
 	 */
-	var progress:Int;
+	final progress:Int;
 
 	/**
 	 * The progress required to reach the next level.
 	 */
-	var progressTotal:Int;
+	final progressTotal:Int;
+}
+
+/**
+ * Describes one part of a creep’s body.
+ */
+extern typedef BodyPartDefinition = {
+	/**
+	 * One of the `RESOURCE_*` constants.
+	 *
+	 * If the body part is boosted, this property specifies the mineral type which is used for boosting.
+	 */
+	final ?boost:Boost;
+
+	/**
+	 * One of the body part types constants.
+	 */
+	final type:BodyPart;
+
+	/**
+	 * The remaining amount of hit points of this body part.
+	 */
+	final hits:Int;
+}
+
+extern enum abstract CreepActionReturnCode(Int) {
+	final OK = 0;
+	final ERR_NOT_OWNER = -1;
+	final ERR_BUSY = -4;
+	final ERR_INVALID_TARGET = -7;
+	final ERR_NOT_IN_RANGE = -9;
+	final ERR_NO_BODYPART = -12;
+	final ERR_TIRED = -11;
+}
+
+extern enum abstract CreepMoveReturnCode(Int) {
+	final OK = 0;
+	final ERR_NOT_OWNER = -1;
+	final ERR_BUSY = -4;
+	final ERR_NO_BODYPART = -12;
+	final ERR_TIRED = -11;
+}
+
+/**
+ * An object with survival game info
+ */
+extern typedef SurvivalGameInfo = {
+	/**
+	 * Current score.
+	 */
+	final score:Int;
+
+	/**
+	 * Time to the next wave of invaders.
+	 */
+	final timeToWave:Int;
+
+	/**
+	 * The number of the next wave.
+	 */
+	final wave:Int;
 }

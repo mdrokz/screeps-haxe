@@ -1,10 +1,11 @@
+import screeps.Creep.HarvestCode;
+import screeps.Globals.CreepActionReturnCode;
 import screeps.Utils.JsMap;
 import screeps.Utils.JsObject;
 import screeps.Mineral;
 import screeps.Globals.Commodities;
 import screeps.Globals.ControllerStructures;
 import screeps.Memory;
-import screeps.Globals.ScreepsReturnCode.OK;
 
 typedef CreepInfo = {
 	source:String
@@ -30,6 +31,8 @@ class Main {
 		var mp = new JsMap<Int,String>();
 
 		var xx = mp[0];
+
+        var f: HarvestCode = OK;
 		
 		trace(x);
 		trace(s);

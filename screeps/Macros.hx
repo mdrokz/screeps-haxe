@@ -71,7 +71,7 @@ class MacroUtils {
 
 	macro public static function buildEnum(typePath:Expr):Array<Field> {
 		var type = Context.getType(typePath.toString());
-
+		
 		var fields = Context.getBuildFields();
 
 		switch (type.follow()) {
@@ -91,6 +91,14 @@ class MacroUtils {
 												fields.push({
 													name: fieldName,
 													kind: FVar(macro:String, macro $v{s}),
+													pos: Context.currentPos()
+												});
+											}
+
+											case TConst(TInt(s)): {
+												fields.push({
+													name: fieldName,
+													kind: FVar(macro:Int, macro $v{s}),
 													pos: Context.currentPos()
 												});
 											}

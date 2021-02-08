@@ -1,3 +1,5 @@
+import screeps.Creep.HarvestCode;
+import screeps.Globals.CreepActionReturnCode;
 import screeps.Source;
 // import screeps.RoomPosition;
 import screeps.Creep.AnyCreep;
@@ -29,6 +31,7 @@ class Test {
         //     return false;
         // }
         var v: OwnedStructure;
+
 
         // v.
     }

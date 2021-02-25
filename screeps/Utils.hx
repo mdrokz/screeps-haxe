@@ -16,6 +16,13 @@ abstract JsMap<T, K>(Map<T, K>) {
 }
 
 abstract JsObject<T>(Object) {
+	
+	public var length(get,never): Int;
+
+	function get_length() {
+		return Object.keys(this).length;
+	}
+ 
 	@:arrayAccess
 	public inline function get(key:String):T {
 		return js.Syntax.code("{0}[{1}]", this, key);
@@ -26,4 +33,8 @@ abstract JsObject<T>(Object) {
 	public inline function new(v:Any) {
 		this = new Object(v);
 	}
+
+	public function iterator() {
+        return Object.keys(this).iterator();
+    }
 }

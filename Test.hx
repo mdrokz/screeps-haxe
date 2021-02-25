@@ -1,3 +1,4 @@
+import js.lib.Object;
 import screeps.Creep.HarvestCode;
 import screeps.Globals.CreepActionReturnCode;
 import screeps.Source;
@@ -24,16 +25,34 @@ using haxe.macro.Tools;
 
 using screeps.GameMap.RouteOptions;
 
+abstract V<T>(Object) {
+	
+	public var length(get,never): Int;
+
+	function get_length() {
+		return Object.keys(this).length;
+	}
+ 
+	@:arrayAccess
+	public inline function get(key:String):T {
+		return js.Syntax.code("{0}[{1}]", this, key);
+		// return [for(x in Object.entries(this)) x.key == key ? x : continue][0].value;
+		// return Object.entries(this).filter(k -> k.key == key)[0].value;
+	}
+
+
+	public inline function new(v:Any) {
+		this = new Object(v);
+	}
+
+	public function iterator() {
+        return Object.keys(this).iterator();
+    }
+}
 
 class Test {
     public static function main() {
-        // var x: FilterFunction = (object: Mineral) -> {
-        //     return false;
-        // }
-        var v: OwnedStructure;
-
-
-        // v.
+        
     }
 
     public function test() {

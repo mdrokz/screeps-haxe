@@ -3,7 +3,6 @@ package screeps;
 import haxe.extern.EitherType;
 import screeps.Creep.AnyCreep;
 import screeps.Resource;
-import screeps.Construction.ConstructionSite;
 import screeps.Structure;
 import screeps.Cost.CostMatrix;
 import screeps.Style.PolyStyle;

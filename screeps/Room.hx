@@ -419,7 +419,7 @@ typedef RoomObjectEffect = EitherType<NaturalEffect, PowerEffect>;
 extern class RoomObject {
 	final prototype:RoomObject;
 	var effects:Array<RoomObjectEffect>;
-	var roomPosition:RoomPosition;
+	var pos:RoomPosition;
 	var room:EitherType<Room, Void>;
 
 	@:selfCall

@@ -1,6 +1,9 @@
 # screeps-haxe
 haxe extern types for game screeps.
 
+# Installation
+
+```haxelib install screeps-extern 0.0.4```
 
 # Info 
 

@@ -4,10 +4,6 @@ import screeps.Game;
 import screeps.Globals.Find.*;
 import screeps.Globals.BodyPart.*;
 
-typedef CreepInfo = {
-	source:String
-}
-
 @:expose
 class Main {
 	static public function init() {

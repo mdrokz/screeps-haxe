@@ -1,0 +1,10 @@
+{
+    "name": "screeps-extern",
+    "url": "https://github.com/mdrokz/screeps-haxe",
+    "license": "MIT",
+    "tags": ["haxe","screeps","types","externs","macros","games","screeps-game"],
+    "version": "0.0.4",
+    "releasenote": "Initial release",
+    "description": "type externs for screeps mmorpg, compiles to javascript",
+    "contributors": ["mdrokz"]
+}

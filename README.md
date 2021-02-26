@@ -20,6 +20,13 @@ in your main class you should have @:expose metadata and a function named loop t
 
 * Main.hx
 ```
+import screeps.Globals.Work;
+import screeps.Source;
+import screeps.Game;
+import screeps.Globals.Find.*;
+import screeps.Globals.BodyPart.*;
+
+
 @:expose
 class Main {
 	static public function init() {

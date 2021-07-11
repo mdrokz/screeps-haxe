@@ -1,6 +1,10 @@
 # screeps-haxe
 haxe extern types for game screeps.
 
+# Credits
+
+credits to https://github.com/screepers/typed-screeps for typed definitions, the extern types are based on this.
+
 # Installation
 
 ```haxelib install screeps-extern 0.0.4```
